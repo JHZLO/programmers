@@ -19,62 +19,64 @@ itemY : 목표 위치 y 좌표 (1~50 N)
 import java.util.*;
 
 class Solution {
-    private static final int[] dx = {1, -1, 0, 0};
-    private static final int[] dy = {0, 0, 1, -1};
-
-    public int solution(int[][] rectangle, int characterX, int characterY, int itemX, int itemY) {
+    private static int[] dx = {1, -1, 0, 0};
+    private static int[] dy = {0, 0, 1, -1};
+    
+    public int solution(int[][] rectangle, int characterX, int characterY, int itemX, int itemY) {       
         characterX *= 2;
         characterY *= 2;
         itemX *= 2;
         itemY *= 2;
-
+        
         int[][] navigation = new int[102][102];
         boolean[][] visited = new boolean[102][102];
         Queue<int[]> que = new LinkedList<>();
-
-        for (int[] rect : rectangle) {
-            fillOutline(rect, navigation);
+        
+        for (int i = 0; i < rectangle.length; i++){
+            for (int j = 0; j < 4; j++){
+                fillOutline(i, j, rectangle, navigation); // 가장 바깥쪽 테두리만 칠함
+            }
         }
-
-        que.offer(new int[]{characterX, characterY});
+        
+        que.offer(new int[] {characterX, characterY});
         visited[characterY][characterX] = true;
-
-        int distance = 0;
-        while (!que.isEmpty()) {
+      
+        int dis = 0;
+        while (!que.isEmpty()){
             int size = que.size();
-            for (int i = 0; i < size; i++) {
+            for (int k = 0; k < size; k++){
                 int[] pos = que.poll();
                 int x = pos[0];
                 int y = pos[1];
-
-                if (x == itemX && y == itemY) {
-                    return distance / 2;
+                
+                if (x == itemX && y == itemY){
+                    return dis / 2;
                 }
-
-                for (int d = 0; d < 4; d++) {
+                
+                for (int d = 0; d < 4; d++){
                     int nx = x + dx[d];
                     int ny = y + dy[d];
-
-                    if (nx >= 1 && nx <= 101 && ny >= 1 && ny <= 101 &&
-                        !visited[ny][nx] && navigation[ny][nx] == 1) {
-                        que.offer(new int[]{nx, ny});
-                        visited[ny][nx] = true;
+                    
+                    if (nx >= 1 && nx <= 101 && ny >= 1 && ny <= 101){
+                        if (!visited[ny][nx] && navigation[ny][nx] == 1){
+                            que.offer(new int[] {nx, ny});
+                            visited[ny][nx] = true;
+                        }
                     }
                 }
             }
-            distance++;
+            dis ++;
         }
-
-        return -1;
+                
+        return dis;
     }
-
-    private void fillOutline(int[] rect, int[][] navigation) {
-        int minX = rect[0] * 2;
-        int minY = rect[1] * 2;
-        int maxX = rect[2] * 2;
-        int maxY = rect[3] * 2;
-
-        // 테두리만 채우기 (내부는 그대로 0으로 유지)
+    
+    private void fillOutline(int i, int j, int[][] rectangle, int[][] navigation){
+        int minX = rectangle[i][0] * 2;
+        int minY = rectangle[i][1] * 2;
+        int maxX = rectangle[i][2] * 2;
+        int maxY = rectangle[i][3] * 2;
+                
         for (int x = minX; x <= maxX; x++) {
             if (navigation[minY][x] != 2) navigation[minY][x] = 1;
             if (navigation[maxY][x] != 2) navigation[maxY][x] = 1;
@@ -83,8 +85,6 @@ class Solution {
             if (navigation[y][minX] != 2) navigation[y][minX] = 1;
             if (navigation[y][maxX] != 2) navigation[y][maxX] = 1;
         }
-
-        // 내부 영역은 2로 표시하여 나중에 탐색을 막음
         for (int x = minX + 1; x < maxX; x++) {
             for (int y = minY + 1; y < maxY; y++) {
                 navigation[y][x] = 2;
