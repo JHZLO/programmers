@@ -2,18 +2,18 @@ class Solution {
     public int solution(String name) {
         int answer = 0;
         int length = name.length();
-        int move = length;
-        int index = 0;
+        int move = length - 1;
+        int y;
         
-        for (int i = 0; i < length; i++){
-            answer += Math.min(name.charAt(i) - 'A', 'Z' - name.charAt(i) + 1);
+        for (int x = 0; x < length; x++){
+            answer += Math.min(name.charAt(x) - 'A', 'Z' - name.charAt(x) + 1);
             
-            index = i + 1; // 현 위치
-            while (index < length && name.charAt(index) == 'A'){
-                index ++; // A가 나오는 index
+            y = x + 1; // 현 위치
+            while (y < length && name.charAt(y) == 'A'){
+                y ++; // A가 나오는 index
             }
             
-            move = Math.min((length-index) * 2 + i , (Math.min(move, i + (length - index) + i))); 
+            move = Math.min(move, (Math.min(x+x+(length-y), x+(length-y)+(length-y)))); 
         }
         
         
