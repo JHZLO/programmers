@@ -1,0 +1,17 @@
+/*
+테이블에서 생산일자가 2022년 5월인 식품들의 식품 ID, 식품 이름, 총매출을 조회하는 SQL문을 작성
+- 총매출 : 식품 가격 * 주문량
+결과는 총매출을 기준으로 내림차순 정렬해주시고 총매출이 같다면 식품 ID를 기준으로 오름차순 
+*/
+
+WITH MAY_FOOD_ORDER AS (
+    SELECT PRODUCT_ID, SUM(AMOUNT) AS TOTAL_AMOUNT
+    FROM FOOD_ORDER
+    WHERE DATE_FORMAT(PRODUCE_DATE,'%Y-%m') = '2022-05'
+    GROUP BY PRODUCT_ID
+)
+
+SELECT a.PRODUCT_ID, a.PRODUCT_NAME, a.PRICE * b.TOTAL_AMOUNT AS TOTAL_SALES
+FROM FOOD_PRODUCT a
+JOIN MAY_FOOD_ORDER b ON a.PRODUCT_ID = b.PRODUCT_ID
+ORDER BY TOTAL_SALES DESC, a.PRODUCT_ID ASC
