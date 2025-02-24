@@ -1,0 +1,36 @@
+/*
+<TABLE>
+-ANIMAL_INS
+    - ANIMAL_ID (FK)
+    - SEX_UPON_INTAKE (중성화 여부)
+-ANIMAL_OUTS
+    - ANIMAL_ID (FK)
+    - SEX_UPON_OUTCOME (중성화 여부)
+
+중성화를 거치지 않은 동물은 성별 및 중성화 여부에 Intact
+중성화를 거친 동물은 Spayed 또는 Neutered
+
+<문제>
+보호소에 들어올 당시에는 중성화되지 않았지만, 
+보호소를 나갈 당시에는 중성화된 동물의 아이디와 생물
+
+ANIMAL_ID	ANIMAL_TYPE, 	NAME
+
+<Order>
+이름을 조회하는 아이디 순으로
+*/
+
+WITH INTACT_INCOME_ANIMAL AS (
+    SELECT ANIMAL_ID, ANIMAL_TYPE, NAME
+    FROM ANIMAL_INS
+    WHERE SUBSTRING_INDEX(SEX_UPON_INTAKE," ",1) = 'Intact'
+), NOT_INTACT_OUTCOME_ANIMAL AS (
+    SELECT ANIMAL_ID, ANIMAL_TYPE, NAME, SEX_UPON_OUTCOME
+    FROM ANIMAL_OUTS
+    WHERE SUBSTRING_INDEX(SEX_UPON_OUTCOME," ",1) IN ('Spayed', 'Neutered')
+)
+
+SELECT a.ANIMAL_ID, a.ANIMAL_TYPE, a.NAME
+FROM INTACT_INCOME_ANIMAL a
+JOIN NOT_INTACT_OUTCOME_ANIMAL b ON a.ANIMAL_ID = b.ANIMAL_ID
+ORDER BY a.ANIMAL_ID
