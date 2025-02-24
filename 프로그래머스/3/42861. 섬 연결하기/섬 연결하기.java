@@ -11,66 +11,72 @@ costs[i][2]: 다리를 건설할 때 드는 비용
 최소의 비용으로 모든 섬이 서로 통행 가능하도록 만들 때 필요한 최소 비용을 return 
 
 Priority Queue를 적용해서 cost가 낮은 값 부터 큐에 넣기
+[0 : [[key, value], [key,value] , ...]
 */
 import java.util.*;
 
 class Solution {
-    class Pair<K, V> {
-        K key;
-        V value;
+    class Pair {
+        int index;
+        int weight;
         
-        public Pair(K key, V value){
-            this.key = key;
-            this.value = value;
+        public Pair(int index, int weight){
+            this.index = index;
+            this.weight = weight;
         }
     }
     
     public int solution(int n, int[][] costs) {
-        // 시작 지점 노드: 도착 지점 노드, costs
-        Map<Integer, List<Pair<Integer, Integer>>> graph = new HashMap<>();
+        Map<Integer, List<Pair>> graph = new HashMap<>();
+        
         for (int i = 0; i < n; i++){
             graph.put(i, new ArrayList<>());
         }
         
-        // 양방향 그래프 구성하기
-        for (int[] cost: costs){
-            int from = cost[0];
-            int to = cost[1];
-            int weight = cost[2];
+        for (int i = 0; i < costs.length; i++){
+            int from = costs[i][0];
+            int to = costs[i][1];
+            int weight = costs[i][2];
             
-            graph.get(from).add(new Pair<>(to, weight));
-            graph.get(to).add(new Pair<>(from,weight));
+            graph.get(from).add(new Pair(to, weight));
+            graph.get(to).add(new Pair(from, weight));
         }
         
-        PriorityQueue<Pair<Integer,Integer>> pq = new PriorityQueue<>(Comparator.comparingInt(p -> p.value));
-        Set<Integer> visited = new HashSet<>();
+        boolean[] visited = new boolean[n];
+        PriorityQueue<Pair> pq = new PriorityQueue<>(Comparator.comparingInt(pair -> pair.weight));
+        pq.offer(new Pair(0,0)); // to, weight
         
-        pq.offer(new Pair<>(0,0)); // 시작점, 비용
-        int totalCost = 0;
-        
+        int distance = 0;
         while (!pq.isEmpty()){
-            Pair<Integer, Integer> pair = pq.poll();
-            int to = pair.key;
-            int weight = pair.value;
+            Pair pair = pq.poll();
+            int from = pair.index; // 시작점이였는데 다시 출발점
+            int weight = pair.weight;
             
-            if (visited.contains(to)){
-                continue;
+            
+            if (visited[from]){
+                continue; // 큐에 남아있는 것들 중 최소 거리만 딱 찍고 다음꺼 가야지
             }
             
-            visited.add(to);
-            totalCost += weight;
+            distance += weight;
+            visited[from] = true;
             
-            for (Pair<Integer, Integer> child : graph.get(to)){
-                if (!visited.contains(child.key)){
-                    pq.offer(new Pair<>(child.key, child.value));
+            for (Pair x : graph.get(from)){
+                if (!visited[x.index]){
+                    pq.offer(new Pair(x.index, x.weight));
                 }
             }
             
-            if (visited.size() == n){
+            boolean is_not_break = false;
+            for (int i = 0; i < n; i++){
+                if (visited[i]){
+                    is_not_break = true;
+                }
+            }
+            if (!is_not_break){
                 break;
             }
         }
         
-        return totalCost;
+        return distance;
     }
 }
