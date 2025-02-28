@@ -11,48 +11,51 @@ x인덱스, y인덱스 끝에 다다르면 (-1, -1)
 */
 import java.util.*;
 
+import java.util.*;
+
 class Solution {
     private static final int[] dx = {0, 1, -1}; // 아래, 오른쪽, 대각선 위
     private static final int[] dy = {1, 0, -1}; // 아래, 오른쪽, 대각선 위
 
     public int[] solution(int n) {
         int[][] triangle = new int[n][n];
-        boolean[][] visited = new boolean[n][n];
 
-        // 삼각형을 채울 배열 생성
+        // 삼각형을 -1로 초기화
         for (int[] row : triangle) {
-            Arrays.fill(row, -1); // 초기값을 -1로 설정
+            Arrays.fill(row, -1);
         }
 
-        int x = 0, y = 0, num = 1, direction = 0; // 초기 위치 (0,0) 시작, 방향 index = 0
+        int x = 0, y = 0, num = 1, direction = 0;
         triangle[y][x] = num;
-        visited[y][x] = true;
 
-        while (num < (n * (n + 1)) / 2) { // 삼각형 숫자 개수만큼 반복
-            int nx = x + dx[direction];
+        while (num < (n * (n + 1)) / 2) {
             int ny = y + dy[direction];
+            int nx = x + dx[direction];
 
-            if (nx >= 0 && ny >= 0 && nx < n && ny < n && triangle[ny][nx] == -1 && !visited[ny][nx]) {
-                // 이동 가능하면 이동
-                x = nx;
-                y = ny;
-                num++;
-                triangle[y][x] = num;
-                visited[y][x] = true;
-            } else {
-                // 이동 불가능하면 방향 변경
-                direction = (direction + 1) % 3;
+            // 범위를 벗어나거나 이미 채워진 칸이면 방향 변경
+            if (ny < 0 || nx < 0 || ny >= n || nx >= n || triangle[ny][nx] != -1) {
+                direction = (direction + 1) % 3; // 방향 변경
+                ny = y + dy[direction];
+                nx = x + dx[direction];
             }
+
+            // 숫자 채우기
+            num++;
+            triangle[ny][nx] = num;
+            y = ny;
+            x = nx;
         }
 
         // 결과를 1차원 배열로 변환
-        List<Integer> result = new ArrayList<>();
+        int[] result = new int [ n * (n+1) / 2];
+        int index = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j <= i; j++) {
-                result.add(triangle[i][j]);
+                result[index] = triangle[i][j];
+                index ++;
             }
         }
 
-        return result.stream().mapToInt(Integer::intValue).toArray();
+        return result;
     }
 }
