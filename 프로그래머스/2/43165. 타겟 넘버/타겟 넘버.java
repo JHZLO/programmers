@@ -1,26 +1,23 @@
-/*
-- 주어진 숫자들을 적절히 더하거나 빼서 타겟 넘버를 만들 수 있는 경우의 수
-    - 타겟 넘버는 자연수
-    - +가 하나일 때 부터 numbers.length 만큼 계산해보기
-        - 만약 계산한 값이 음수이면 continue
-*/
-
 class Solution {
+    private int cnt = 0; // 정답 개수 카운트
+
     public int solution(int[] numbers, int target) {
-        return dfs(numbers, target, 0, 0);
+        dfs(numbers, target, 0, 0); // 시작: 인덱스=0, 합=0
+        return cnt;
     }
 
-    private int dfs(int[] numbers, int target, int depth, int sum) {
-        if (depth == numbers.length) {
-            if (sum == target){
-                return 1;
+    private void dfs(int[] numbers, int target, int index, int sum) {
+        if (index == numbers.length) { // 모든 숫자를 사용한 경우
+            if (sum == target) { // 목표값과 일치하면 카운트 증가
+                cnt++;
             }
-            return 0;
+            return;
         }
 
-        int add = dfs(numbers, target, depth + 1, sum + numbers[depth]);
-        int subtract = dfs(numbers, target, depth + 1, sum - numbers[depth]);
+        // 현재 숫자를 더한 경우
+        dfs(numbers, target, index + 1, sum + numbers[index]);
 
-        return add + subtract;
+        // 현재 숫자를 뺀 경우
+        dfs(numbers, target, index + 1, sum - numbers[index]);
     }
 }
