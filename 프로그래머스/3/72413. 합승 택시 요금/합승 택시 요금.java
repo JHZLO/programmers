@@ -1,79 +1,67 @@
 /*
-s, a, b에서 목적지 한 곳 찍고 가장 간선 합이 적은 위치..
+하나의 지점에서 A, B, S 까지의 최단 거리
+dijkstra 알고리즘 적용
+distA, distB, distS의 각각의 index에 대한 거리의 합의 최솟값 구하기
 */
-
 import java.util.*;
 
 class Solution {
-    class Node {
-        int idx;
-        int cost;
-        
-        public Node(int idx, int cost){
-            this.idx = idx;
-            this.cost = cost;
-        }
-    }
     public int solution(int n, int s, int a, int b, int[][] fares) {
-        Map<Integer, List<Node>> graph = new HashMap<>();
+        Map<Integer, List<int[]>> graph = new HashMap<>();
         
         for (int i = 1; i <= n; i ++){
             graph.put(i, new ArrayList<>());
         }
         
-        for (int[] fare: fares){
-            int from = fare[0];
-            int to = fare[1];
-            int cost = fare[2];
+        for (int i = 0; i < fares.length; i++){
+            int from = fares[i][0];
+            int to = fares[i][1];
+            int cost = fares[i][2];
             
-            graph.get(from).add(new Node(to, cost));
-            graph.get(to).add(new Node(from, cost));
+            graph.get(from).add(new int[] {to, cost});
+            graph.get(to).add(new int[] {from, cost});
         }
         
-        // 다익스트라 실행 (각 출발점에서 모든 거리 구하기)
-        int[] distS = dijkstra(n, s, graph); // S에서 출발하는 최단 거리
-        int[] distA = dijkstra(n, a, graph); // A에서 출발하는 최단 거리
-        int[] distB = dijkstra(n, b, graph); // B에서 출발하는 최단 거리
+        int[] distS = dijkstra(n, s, graph);
+        int[] distA = dijkstra(n, a, graph);
+        int[] distB = dijkstra(n, b, graph);
         
-        int min_dist = Integer.MAX_VALUE;
+        int min_cost = Integer.MAX_VALUE;
         for (int i = 1; i <= n; i++){
             if (distS[i] == Integer.MAX_VALUE || distA[i] == Integer.MAX_VALUE || distB[i] == Integer.MAX_VALUE){
-               continue; // 연결되어 있지 않음을 맨처음에 채워놓은 값이랑 같을 때로 비교 
+                continue;
             }
-            min_dist = Math.min(min_dist, distS[i] + distA[i] + distB[i]);
+            min_cost = Math.min(min_cost, distS[i] + distA[i] + distB[i]);
         }
         
-        return min_dist;
+        return min_cost;
     }
     
-    private int[] dijkstra(int n, int start, Map<Integer, List<Node>> graph){
-        // cost 비용 적은 순대로 오름차순 하는 heap 생성
-        PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingInt(node -> node.cost));
-        int[] dist = new int[n+1]; // 각 위치에 대한 최소 거리를 저장하는 배열
-        
-        Arrays.fill(dist, Integer.MAX_VALUE); // 최소값으로 업데이트해야하므로 max값 채워놓기
-        
-        pq.offer(new Node(start,0)); // 시작 지점 삽입
+    private int[] dijkstra(int n, int start, Map<Integer, List<int[]>> graph){
+        int[] dist = new int[n + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(s -> s[1]));
+        pq.offer(new int[] {start, 0});
         dist[start] = 0;
         
-        int total_dist = 0;
         while (!pq.isEmpty()){
-            Node node = pq.poll();
-            int curr = node.idx;
-            int cost = node.cost;
+            int[] pos = pq.poll();
+            int idx = pos[0];
+            int cost = pos[1];
             
-            if (dist[curr] < cost){
+            if (dist[idx] < cost){
                 continue;
             }
             
-            for (Node next: graph.get(curr)){
-                int new_dist = next.cost + cost;
-                if (new_dist < dist[next.idx]){
-                    dist[next.idx] = new_dist;
-                    pq.offer(new Node(next.idx, new_dist));
+            for (int[] node: graph.get(idx)){
+                int distance = cost + node[1];
+                if (distance < dist[node[0]]){
+                    dist[node[0]] = distance;
+                    pq.offer(new int[] {node[0], distance});
                 }
             }
         }
+        
         return dist;
     }
 }
