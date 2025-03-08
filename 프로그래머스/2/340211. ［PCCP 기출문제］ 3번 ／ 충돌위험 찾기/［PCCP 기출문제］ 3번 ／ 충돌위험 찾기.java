@@ -12,13 +12,7 @@ MAP<Integer, int[]> ~> contains이면 충돌++
 import java.util.*;
 
 class Solution {
-    private static int max_x;
-    private static int max_y;
-    
     private static int crash = 0;
-    
-    private static int[] dx = {1, -1, 0, 0};
-    private static int[] dy = {0, 0, 1, -1};
     
     private static Map<Integer, Map<String, Integer>> nav = new HashMap<>(); // 시간, <pos, 횟수>
     
