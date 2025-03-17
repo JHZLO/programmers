@@ -68,5 +68,75 @@ public class Main {
 			}
 		}
 	}
-	
+}
+
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+//1167. 트리의 지름
+public class Main {
+    private static Map<Integer, List<int[]>> graph;
+    private static int V;
+    private static int max;
+    private static boolean[] visited;
+    private static int n;
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        StringTokenizer st;
+        graph = new HashMap<>();
+
+        V = Integer.parseInt(br.readLine());
+
+        for (int i = 1; i <= V; i++) {
+            graph.put(i, new ArrayList<>());
+        }
+
+        for (int i = 1; i <= V; i++) {
+            st = new StringTokenizer(br.readLine());
+            int vertex = Integer.parseInt(st.nextToken());
+
+            while (true) {
+                int to = Integer.parseInt(st.nextToken());
+                if (to == -1) {
+                    break;
+                }
+                int cost = Integer.parseInt(st.nextToken());
+
+                graph.get(vertex).add(new int[]{to, cost});
+            }
+        }
+
+        visited = new boolean[V + 1];
+        max = 0;
+        dfs(1, 0);
+
+        visited = new boolean[V + 1];
+        dfs(n, 0);
+
+        System.out.println(max);
+    }
+
+    private static void dfs(int start, int distance) {
+        if (distance > max) {
+            max = distance;
+            n = start;
+        }
+        visited[start] = true;
+
+        for (int i = 0; i < graph.get(start).size(); i++) {
+            int[] v = graph.get(start).get(i);
+            if (!visited[v[0]]) {
+                visited[v[0]] = true;
+                dfs(v[0], distance + v[1]);
+            }
+        }
+    }
 }
