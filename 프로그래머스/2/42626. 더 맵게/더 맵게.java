@@ -1,38 +1,35 @@
 /*
-- 우선순위 큐 활용
-- scovile 오름차순 정렬
-    - 1. 0번째 인덱스 + (1번째 인덱스 * 2) 한 값 큐에 다시 집어넣기
-    - 2. 기존의 0, 1 번째 인덱스는 pop
-    - 3. cnt ++
-    - 4. 1번째 scovile의 값이 7이 넘으면 순회 종료 -> cnt return
+- 모든 음식의 스코빌 지수를 K 이상으로 만들고자함
+섞은 음식의 스코빌 지수 = 가장 맵지 않은 음식의 스코빌 지수 + (두 번째로 맵지 않은 음식의 스코빌 지수 * 2)
+=> 모든 음식의 스코빌 지수가 K 이상이 될 때 까지 반복하여 섞음
+
 */
 import java.util.*;
 
 class Solution {
     public int solution(int[] scoville, int K) {
-        Queue<Integer> sortedScoville = new PriorityQueue<>();
+        int answer = 0;
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
         
-        for (int i = 0; i < scoville.length; i++){
-            sortedScoville.add(scoville[i]);
+        for (int i: scoville){
+            pq.offer(i);
         }
         
-        int cnt = 0;
-        
-        while (!sortedScoville.isEmpty()){
-            int a = sortedScoville.poll();
-            if (a >= K){
+        while(true){
+            int x = pq.poll();
+            if (x >= K){
                 break;
+            }else{
+                if (pq.isEmpty()){
+                    return -1;
+                }
+                int y = pq.poll();
+                int sc = x + y * 2;
+                pq.offer(sc);
+                answer ++;
             }
-            if (sortedScoville.isEmpty()){
-                return -1;
-            }
-            
-            int b = sortedScoville.poll();
-            
-            sortedScoville.add(a + (b * 2));
-            cnt ++;
         }
         
-        return cnt;
+        return answer;
     }
 }
