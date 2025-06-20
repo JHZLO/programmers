@@ -1,45 +1,45 @@
 import java.util.*;
 
 class Solution {
-    static int[] dx = {0, 0, 1, -1};
-    static int[] dy = {1, -1, 0, 0};
+    public static int[] dx = {1, -1, 0, 0};
+    public static int[] dy = {0, 0, 1, -1};
     
     public int solution(int[][] maps) {
-        int n = maps.length;
-        int m = maps[0].length;
+        int N, M;
+        int answer = 1;
+        N = maps.length;
+        M = maps[0].length;
         
         Queue<int[]> que = new LinkedList<>();
-        boolean[][] visited = new boolean[n][m];
+        boolean[][] visited = new boolean[N][M];
         
-        que.offer(new int[] {0, 0});
+        que.offer(new int[] {0,0});
         visited[0][0] = true;
         
-        int dis = 1;
-        
-        while (!que.isEmpty()) {
+        while(!que.isEmpty()){
             int size = que.size();
-            for (int s = 0; s < size; s++) {
+            for (int i = 0; i < size; i++){
                 int[] pos = que.poll();
                 int x = pos[0];
                 int y = pos[1];
                 
-                if (x == n - 1 && y == m - 1) {
-                    return dis;
+                if (x == N - 1 && y == M - 1) {
+                    return answer;
                 }
                 
-                for (int i = 0; i < 4; i++) {
-                    int newX = x + dx[i];
-                    int newY = y + dy[i];
+                for (int j = 0; j < 4; j++){
+                    int nx = x + dx[j];
+                    int ny = y + dy[j];
                     
-                    if (newX >= 0 && newY >= 0 && newX < n && newY < m) {
-                        if (!visited[newX][newY] && maps[newX][newY] == 1) {
-                            que.offer(new int[] {newX, newY});
-                            visited[newX][newY] = true;
+                    if (nx >= 0 && ny >= 0 && nx < N && ny < M){
+                        if (!visited[nx][ny] && maps[nx][ny] == 1){
+                            que.offer(new int[] {nx, ny});
+                            visited[nx][ny] = true;
                         }
                     }
                 }
             }
-            dis++;
+            answer += 1;
         }
         
         return -1;
