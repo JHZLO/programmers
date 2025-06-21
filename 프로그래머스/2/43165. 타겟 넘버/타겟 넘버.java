@@ -1,23 +1,29 @@
+/*
+- 숫자가 주어지면 숫자들의 조합으로 부호를 붙여서 target값을 만들 수 있는 경우의 수?
+- root가 맨 첫번째 수의 +, - 부호 붙인 숫자
+
+
+처음이 + 일때, 
+*/
+import java.util.*;
+
 class Solution {
-    private int cnt = 0; // 정답 개수 카운트
-
+    public static int answer = 0;
     public int solution(int[] numbers, int target) {
-        dfs(numbers, target, 0, 0); // 시작: 인덱스=0, 합=0
-        return cnt;
+        dfs(0, 0, numbers, target);
+        
+        return answer;
     }
-
-    private void dfs(int[] numbers, int target, int index, int sum) {
-        if (index == numbers.length) { // 모든 숫자를 사용한 경우
-            if (sum == target) { // 목표값과 일치하면 카운트 증가
-                cnt++;
+    
+    public void dfs (int depth, int sum, int[] numbers, int target){
+        if (depth == numbers.length){
+            if (sum == target){
+                answer += 1;
             }
             return;
         }
-
-        // 현재 숫자를 더한 경우
-        dfs(numbers, target, index + 1, sum + numbers[index]);
-
-        // 현재 숫자를 뺀 경우
-        dfs(numbers, target, index + 1, sum - numbers[index]);
+        
+        dfs(depth + 1, sum + numbers[depth], numbers, target);
+        dfs(depth + 1, sum - numbers[depth], numbers, target);
     }
 }
