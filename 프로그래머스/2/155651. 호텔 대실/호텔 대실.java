@@ -9,9 +9,8 @@ class Solution {
             int end = convertToMinutes(book_time[i][1]) + 10; // 청소 시간 추가
             timeDiff[i] = new int[]{start, end};
         }
-
-        // 시작 시간 기준으로 정렬
-        Arrays.sort(timeDiff, Comparator.comparingInt(v -> v[0]));
+        
+        Arrays.sort(timeDiff, (a,b) -> a[0] - b[0]);
 
         PriorityQueue<Integer> pq = new PriorityQueue<>();
 
