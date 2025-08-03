@@ -11,7 +11,7 @@ public class Main {
             char x = str.charAt(i);
             if (x == '('){
                 stack.push(x);
-            }else{
+            }else if(x == ')' && !stack.isEmpty()){
                 stack.pop();
             }
         }
