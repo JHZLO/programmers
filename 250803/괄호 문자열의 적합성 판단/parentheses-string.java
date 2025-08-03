@@ -13,6 +13,9 @@ public class Main {
                 stack.push(x);
             }else if(x == ')' && !stack.isEmpty()){
                 stack.pop();
+            }else{
+                System.out.print("No");
+                return;
             }
         }
 
