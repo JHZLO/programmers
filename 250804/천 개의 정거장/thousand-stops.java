@@ -11,103 +11,119 @@ A지점부터 B지점까지 이동할 때 필요한 최소 비용과 버스 탑�
 - 통과하는 점
 
 */
-import java.util.*;
+import java.util.Scanner;
+import java.util.ArrayList;
+
+class Pair {
+    long cost, time;
+
+    public Pair(long cost, long time) {
+        this.cost = cost;
+        this.time = time;
+    }
+
+    public boolean isGreaterThan(Pair p) {
+        return this.cost > p.cost || (this.cost == p.cost && this.time > p.time);
+    }
+}
 
 public class Main {
-    static class State implements Comparable<State> {
-        int stop;     // 정류장
-        int bus;      // 현재 타고 있는 버스 번호 (0이면 아직 안 탐)
-        int cost;     // 누적 비용
-        int time;     // 누적 시간
-
-        State(int stop, int bus, int cost, int time) {
-            this.stop = stop;
-            this.bus = bus;
-            this.cost = cost;
-            this.time = time;
-        }
-
-        @Override
-        public int compareTo(State o) {
-            if (this.cost == o.cost) return Integer.compare(this.time, o.time);
-            return Integer.compare(this.cost, o.cost);
-        }
-    }
+    public static final int INT_MAX = Integer.MAX_VALUE;
+    public static final long INF = (long)1e17 + 1;
+    public static final int MAX_M = 1000;
+    
+    // 변수 선언
+    public static int a, b, n, m = 1000;
+    public static Pair[][] graph = new Pair[MAX_M + 1][MAX_M + 1]; // (비용, 시간)을 기록
+    public static boolean[] visited = new boolean[MAX_M + 1];
+    
+    public static Pair[] dist = new Pair[MAX_M + 1];               // (비용, 시간)을 기록
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        // 입력
+        a = sc.nextInt();
+        b = sc.nextInt();
+        n = sc.nextInt();
 
-        int A = sc.nextInt();  // 시작 정류장
-        int B = sc.nextInt();  // 도착 정류장
-        int N = sc.nextInt();  // 버스 개수
+        // 초기 graph 값에 전부 큰 값 기록
+        for(int i = 1; i <= m; i++) {
+            for(int j = 1; j <= m; j++) {
+                graph[i][j] = new Pair(INF, 0);
+            }
+            // 자기 자신은 비용과 시간이 전혀 소요되지 않음
+            graph[i][i] = new Pair(0, 0);
+        }
 
-        // 버스 번호 → 요금
-        int[] busFare = new int[N + 1];
-
-        // 버스 번호 → 정류장 리스트
-        List<Integer>[] busRoutes = new ArrayList[N + 1];
-        for (int i = 1; i <= N; i++) {
+        // 그래프를 인접행렬로 표현
+        for(int i = 1; i <= n; i++) {
             int cost = sc.nextInt();
-            int stopCount = sc.nextInt();
-            busFare[i] = cost;
-            busRoutes[i] = new ArrayList<>();
-            for (int j = 0; j < stopCount; j++) {
-                int stop = sc.nextInt();
-                busRoutes[i].add(stop);
-            }
-        }
-
-        // 정류장 → 탈 수 있는 버스들
-        Map<Integer, List<Integer>> stopToBuses = new HashMap<>();
-        for (int i = 1; i <= N; i++) {
-            for (int stop : busRoutes[i]) {
-                stopToBuses.putIfAbsent(stop, new ArrayList<>());
-                stopToBuses.get(stop).add(i);
-            }
-        }
-
-        // (정류장, 버스) → 최소 비용, 시간
-        Map<String, int[]> dist = new HashMap<>();
-
-        PriorityQueue<State> pq = new PriorityQueue<>();
-        pq.offer(new State(A, 0, 0, 0)); // 시작은 어떤 버스도 안 탐
-
-        while (!pq.isEmpty()) {
-            State cur = pq.poll();
-            String key = cur.stop + "-" + cur.bus;
-
-            if (dist.containsKey(key)) {
-                int[] prev = dist.get(key);
-                if (cur.cost > prev[0] || (cur.cost == prev[0] && cur.time >= prev[1])) continue;
+            int stopNum = sc.nextInt();
+            
+            ArrayList<Integer> stops = new ArrayList<>();
+            for(int j = 0; j < stopNum; j++) {
+                int x = sc.nextInt();
+                stops.add(x);
             }
 
-            dist.put(key, new int[]{cur.cost, cur.time});
-
-            // 도착하면 종료
-            if (cur.stop == B) {
-                System.out.println(cur.cost + " " + cur.time);
-                return;
-            }
-
-            // ① 같은 버스로 이동
-            if (cur.bus != 0) {
-                List<Integer> route = busRoutes[cur.bus];
-                for (int i = 0; i < route.size() - 1; i++) {
-                    if (route.get(i) == cur.stop) {
-                        int nextStop = route.get(i + 1);
-                        pq.offer(new State(nextStop, cur.bus, cur.cost, cur.time + 1));
-                        break;
-                    }
+            for(int j = 0; j < stopNum; j++) {
+                for(int k = j + 1; k < stopNum; k++) {
+                    Pair newP = new Pair(cost, k - j);
+                    if(graph[stops.get(j)][stops.get(k)].isGreaterThan(newP))
+                        graph[stops.get(j)][stops.get(k)] = newP;
                 }
             }
+        }
+        
+        // 그래프에 있는 모든 노드들에 대해
+        // 초기값을 전부 아주 큰 값으로 설정
+        // INT_MAX 그 자체로 설정하면
+        // 후에 덧셈 진행시 overflow가 발생할 수도 있으므로
+        // 적당히 큰 숫자로 적어줘야함에 유의!
+        for(int i = 1; i <= m; i++)
+            dist[i] = new Pair(INF, 0);
 
-            // ② 다른 버스로 환승 (혹은 처음 탑승)
-            for (int bus : stopToBuses.getOrDefault(cur.stop, new ArrayList<>())) {
-                if (bus == cur.bus) continue; // 같은 버스면 이미 타고 있음
-                pq.offer(new State(cur.stop, bus, cur.cost + busFare[bus], cur.time));
+        // 시작위치에는 dist값을 0으로 설정
+        dist[a] = new Pair(0, 0);
+
+        // O(|V|^2) 다익스트라 코드
+        for(int i = 1; i <= m; i++) {
+            // V개의 정점 중 
+            // 아직 방문하지 않은 정점 중
+            // dist값이 가장 작은 정점을 찾아줍니다.
+            int minIndex = -1;
+            for(int j = 1; j <= m; j++) {
+                if(visited[j])
+                    continue;
+                
+                if(minIndex == -1 || dist[minIndex].isGreaterThan(dist[j]))
+                    minIndex = j;
+            }
+
+            // 최솟값에 해당하는 정점에 방문 표시를 진행합니다.
+            visited[minIndex] = true;
+
+            long minCost = dist[minIndex].cost;
+            long minTime = dist[minIndex].time;
+
+            // 최솟값에 해당하는 정점에 연결된 간선들을 보며
+            // 시작점으로부터의 최단거리 값을 갱신해줍니다.
+            for(int j = 1; j <= m; j++) {
+                long cost = graph[minIndex][j].cost;
+                long time = graph[minIndex][j].time;
+                Pair newP = new Pair(minCost + cost, minTime + time);
+                if(dist[j].isGreaterThan(newP))
+                    dist[j] = newP;
             }
         }
 
-        System.out.println("-1 -1"); // 도달 못하는 경우
+        // 만약 도달이 불가능하다면 -1 -1이 답이 됩니다.
+        if(dist[b].cost == INF)
+            dist[b] = new Pair(-1, -1);
+        
+        long minCost = dist[b].cost;
+        long minTime = dist[b].time;
+
+        System.out.print(minCost + " " + minTime);
     }
 }
